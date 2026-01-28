@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Steal the Memes: Tycoon</title>
+    <style>
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #ffffff;
+        --accent-color: #ff0055;
+        --money-color: #00ff88;
+        --shield-color: #00ccff;
+      }
+
+      body {
+        font-family: "Courier New", Courier, monospace;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        text-shadow: 2px 2px var(--accent-color);
+        margin-bottom: 10px;
+      }
+
+      /* HUD */
+      #hud {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 600px;
+        background: #333;
+        padding: 15px;
+        border-radius: 10px;
+        border: 2px solid var(--text-color);
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .money-text {
+        color: var(--money-color);
+      }
+
+      /* GAME BOARD */
+      #game-board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .zone {
+        background: #2a2a2a;
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 15px;
+        min-height: 300px;
+        position: relative;
+      }
+
+      h2 {
+        margin-top: 0;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+      }
+
+      /* UNITS */
+      .unit-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .unit {
+        background: #444;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        cursor: default;
+        animation: bounce 0.5s;
+      }
+
+      @keyframes bounce {
+        0% {
+          transform: scale(0);
+        }
+        80% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* ACTIONS */
+      .actions {
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      button {
+        padding: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        transition: transform 0.1s;
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      .btn-buy {
+        background-color: var(--money-color);
+        color: #000;
+      }
+      .btn-steal {
+        background-color: var(--accent-color);
+        color: white;
+      }
+
+      .btn-shield {
+        background-color: var(--shield-color);
+        color: #000;
+        width: 100%;
+        font-size: 1.1rem;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+
+      .shield-active {
+        border-color: var(--shield-color) !important;
+        box-shadow: 0 0 15px var(--shield-color);
+      }
+
+      /* LOG */
+      #log {
+        width: 100%;
+        max-width: 800px;
+        height: 100px;
+        background: #000;
+        border: 1px solid #555;
+        margin-top: 20px;
+        padding: 10px;
+        overflow-y: scroll;
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #ccc;
+      }
+
+      .log-bad {
+        color: var(--accent-color);
+      }
+      .log-good {
+        color: var(--money-color);
+      }
+      .log-neutral {
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>STEAL A MEME: WEB EDITION</h1>
+
+    <div id="hud">
+      <div>Cash: <span id="money" class="money-text">$0</span></div>
+      <div>Income: <span id="income" class="money-text">$0</span>/sec</div>
+    </div>
+
+    <button id="shieldBtn" class="btn-shield" onclick="toggleShield()">
+      ACTIVATE SHIELD (Ready)
+    </button>
+
+    <div id="game-board">
+      <div id="player-zone" class="zone">
+        <h2>YOUR BASE</h2>
+        <div id="my-units" class="unit-list"></div>
+
+        <div class="actions">
+          <h3>MARKETPLACE</h3>
+          <button class="btn-buy" onclick="buyUnit('Noob Cube', 50, 2)">
+            Buy Noob Cube ($50 | +$2/s)
+          </button>
+          <button class="btn-buy" onclick="buyUnit('Vibe Cat', 200, 10)">
+            Buy Vibe Cat ($200 | +$10/s)
+          </button>
+          <button class="btn-buy" onclick="buyUnit('Golden Doge', 1000, 60)">
+            Buy Golden Doge ($1000 | +$60/s)
+          </button>
+        </div>
+      </div>
+
+      <div class="zone">
+        <h2>NEIGHBOR'S BASE</h2>
+        <p>Status: <span id="enemy-status">Generating Units...</span></p>
+        <div id="enemy-units" class="unit-list"></div>
+
+        <div class="actions">
+          <h3>RAID ACTIONS</h3>
+          <button class="btn-steal" onclick="attemptSteal()">
+            🏃 ATTEMPT TO STEAL UNIT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="log">
+      Welcome to Steal a Meme. Buy units to earn cash. Steal from your neighbor!
+    </div>
+
+    <script>
+      // --- GAME STATE ---
+      let money = 100; // Start with some cash
+      let myUnits = [];
+      let enemyUnits = [];
+
+      // Shield System
+      let shieldActive = false;
+      let shieldReady = true;
+      let shieldDuration = 10000; // 10 seconds
+      let shieldCooldown = 15000; // 15 seconds
+
+      // Config for Units
+      const unitTypes = {
+        "Noob Cube": { cost: 50, mps: 2, icon: "🧊" },
+        "Vibe Cat": { cost: 200, mps: 10, icon: "🐱" },
+        "Golden Doge": { cost: 1000, mps: 60, icon: "🐕" },
+        Magnezone: { cost: 9999999999999, mps: 1000000, icon: "!!!!!!" },
+      };
+
+      // --- CORE LOOPS ---
+
+      // 1. Income Loop (Runs every second)
+      setInterval(() => {
+        let income = 0;
+        myUnits.forEach((u) => (income += u.mps));
+        money += income;
+        updateUI();
+      }, 1000);
+
+      // 2. Enemy AI Logic (Enemy buys units and tries to steal)
+      setInterval(() => {
+        // Enemy buys a random unit every 4 seconds to keep their base stocked
+        const types = Object.keys(unitTypes);
+        const randomType = types[Math.floor(Math.random() * types.length)];
+        const stats = unitTypes[randomType];
+        enemyUnits.push({ name: randomType, mps: stats.mps, icon: stats.icon });
+        updateUI();
+      }, 4000);
+
+      // Enemy tries to steal from YOU every 6 seconds
+      setInterval(() => {
+        if (myUnits.length > 0) {
+          if (shieldActive) {
+            log(
+              "🛡️ Enemy tried to steal, but your SHIELD blocked them!",
+              "neutral"
+            );
+          } else {
+            // 40% chance enemy succeeds
+            if (Math.random() < 0.4) {
+              const stolenUnit = myUnits.pop();
+              enemyUnits.push(stolenUnit);
+              log(
+                `🚨 ALERT! Neighbor stole your ${stolenUnit.name}!`,
+                "log-bad"
+              );
+              updateUI();
+            } else {
+              log("👀 Neighbor tried to steal but tripped over.", "neutral");
+            }
+          }
+        }
+      }, 6000);
+
+      // --- PLAYER ACTIONS ---
+
+      function buyUnit(name, cost, mps) {
+        if (money >= cost) {
+          money -= cost;
+          const icon = unitTypes[name].icon;
+          myUnits.push({ name, mps, icon });
+          log(`You bought a ${name}.`, "log-good");
+          updateUI();
+        } else {
+          log("Not enough money!", "log-bad");
+        }
+      }
+
+      function attemptSteal() {
+        if (enemyUnits.length === 0) {
+          log("Neighbor has nothing to steal!", "neutral");
+          return;
+        }
+
+        // 50% Chance to steal successfully
+        const success = Math.random() > 0.5;
+
+        if (success) {
+          // Steal the last unit in their list
+          const stolenUnit = enemyUnits.pop();
+          myUnits.push(stolenUnit);
+          log(`🏃💨 SUCCESS! You stole a ${stolenUnit.name}!`, "log-good");
+        } else {
+          log(
+            "❌ FAILED! You got caught and ran away empty-handed.",
+            "log-bad"
+          );
+          // Penalty: Lose a little money for medical bills
+          if (money > 10) money -= 10;
+        }
+        updateUI();
+      }
+
+      function toggleShield() {
+        if (!shieldReady) {
+          log("Shield is recharging!", "neutral");
+          return;
+        }
+
+        shieldActive = true;
+        shieldReady = false;
+        document.getElementById("player-zone").classList.add("shield-active");
+
+        const btn = document.getElementById("shieldBtn");
+        btn.innerHTML = "SHIELD ACTIVE (10s)";
+        btn.style.backgroundColor = "#fff";
+
+        log("🛡️ SHIELD ACTIVATED!", "log-good");
+
+        // Turn off shield after duration
+        setTimeout(() => {
+          shieldActive = false;
+          document
+            .getElementById("player-zone")
+            .classList.remove("shield-active");
+          btn.innerHTML = "Recharging...";
+          btn.style.backgroundColor = "#555";
+          log("⚠️ Shield down! Recharging...", "log-bad");
+
+          // Cooldown logic
+          setTimeout(() => {
+            shieldReady = true;
+            btn.innerHTML = "ACTIVATE SHIELD (Ready)";
+            btn.style.backgroundColor = "var(--shield-color)";
+            log("✅ Shield is ready again.", "log-good");
+          }, shieldCooldown);
+        }, shieldDuration);
+      }
+
+      // --- UI UPDATER ---
+
+      function updateUI() {
+        // Stats
+        document.getElementById("money").innerText = `$${money}`;
+        let totalMps = myUnits.reduce((acc, curr) => acc + curr.mps, 0);
+        document.getElementById("income").innerText = `$${totalMps}`;
+
+        // My Units
+        const myContainer = document.getElementById("my-units");
+        myContainer.innerHTML = "";
+        myUnits.forEach((u) => {
+          let div = document.createElement("div");
+          div.className = "unit";
+          div.innerText = `${u.icon} ${u.name}`;
+          myContainer.appendChild(div);
+        });
+
+        // Enemy Units
+        const enemyContainer = document.getElementById("enemy-units");
+        enemyContainer.innerHTML = "";
+        enemyUnits.forEach((u) => {
+          let div = document.createElement("div");
+          div.className = "unit";
+          div.innerText = `${u.icon} ${u.name}`;
+          enemyContainer.appendChild(div);
+        });
+      }
+
+      function log(msg, type = "neutral") {
+        const logBox = document.getElementById("log");
+        const p = document.createElement("div");
+        p.innerText = `> ${msg}`;
+        p.className = type;
+        logBox.prepend(p); // Add new logs to the top
+      }
+
+      // Initial Render
+      updateUI();
+    </script>
+  </body>
+</html>
