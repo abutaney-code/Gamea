@@ -1,128 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Learning Game</title>
     <style>
-      /* Removes default margins and centers everything */
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-      }
+        /* Removes default margins and centers everything */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+        }
 
-      /* Container to stack the title and the button container */
-      .center-container {
-        text-align: center;
-      }
+        /* Container to stack the title and the button container */
+        .center-container {
+            text-align: center;
+        }
 
-      /* Styles for the large text */
-      .main-text {
-        font-size: 4rem;
-        color: #333;
-        margin-top: 0;
-        margin-bottom: 30px; /* Adds space between text and the buttons */
-      }
+        /* Styles for the large text */
+        .main-text {
+            font-size: 4rem;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 30px; /* Adds space between text and the buttons */
+        }
 
-      /* Container to align the game buttons side by side */
-      .button-group {
-        display: flex;
-        gap: 20px; /* Adds space between the buttons */
-        justify-content: center;
-      }
+        /* Container to align the game buttons side by side */
+        .button-group {
+            display: flex;
+            gap: 20px; /* Adds space between the buttons */
+            justify-content: center;
+        }
 
-      /* The "Go" button - set to exactly 10px by 10px */
-      .top-left-btn {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 10px; /* Set width to 10px */
-        height: 10px; /* Set height to 10px */
-        display: flex; /* Uses flexbox to center the text inside */
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box; /* Ensures borders are included in the 10px size */
-        font-size: 4px; /* Shrunk down to fit the tiny box */
-        line-height: 1;
-        text-decoration: none;
-        color: #333;
-        background-color: #e0e0e0;
-        border: 1px solid #ccc;
-        border-radius: 1px; /* Minimal rounding for micro sizes */
-        cursor: pointer;
-        transition: background-color 0.2s;
-        overflow: hidden; /* Prevents text clipping messy issues */
-      }
+        /* The "Go" button - set to exactly 10px by 10px */
+        .top-left-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 10px;        /* Set width to 10px */
+            height: 10px;       /* Set height to 10px */
+            display: flex;      /* Uses flexbox to center the text inside */
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box; /* Ensures borders are included in the 10px size */
+            font-size: 4px;     /* Shrunk down to fit the tiny box */
+            line-height: 1;
+            text-decoration: none;
+            color: #333;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            border-radius: 1px; /* Minimal rounding for micro sizes */
+            cursor: pointer;
+            transition: background-color 0.2s;
+            overflow: hidden;   /* Prevents text clipping messy issues */
+        }
 
-      .top-left-btn:hover {
-        background-color: #d0d0d0;
-      }
+        .top-left-btn:hover {
+            background-color: #d0d0d0;
+        }
 
-      /* Base styles for the main category buttons */
-      .game-btn {
-        display: inline-block;
-        padding: 14px 28px;
-        font-size: 1.25rem;
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, background-color 0.2s;
-      }
+        /* Base styles for the main category buttons */
+        .game-btn {
+            display: inline-block;
+            padding: 14px 28px;
+            font-size: 1.25rem;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
 
-      /* Hover effect for the category buttons */
-      .game-btn:hover {
-        transform: translateY(-2px); /* Makes it pop up slightly when hovered */
-      }
+        /* Hover effect for the category buttons */
+        .game-btn:hover {
+            transform: translateY(-2px); /* Makes it pop up slightly when hovered */
+        }
 
-      /* Math button color specific styles */
-      .math-btn {
-        background-color: #4caf50; /* Green color */
-      }
+        /* Math button color specific styles */
+        .math-btn {
+            background-color: #4CAF50; /* Green color */
+        }
 
-      .math-btn:hover {
-        background-color: #45a049;
-      }
+        .math-btn:hover {
+            background-color: #45a049;
+        }
 
-      /* English button color specific styles */
-      .english-btn {
-        background-color: #008cba; /* Blue color */
-      }
+        /* English button color specific styles */
+        .english-btn {
+            background-color: #008CBA; /* Blue color */
+        }
 
-      .english-btn:hover {
-        background-color: #007bb5;
-      }
+        .english-btn:hover {
+            background-color: #007bb5;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
     <!-- The micro 10x10 button positioned in the top left -->
     <a href="https://learninggame1.netlify.app/" class="top-left-btn">Go</a>
 
     <!-- A container to hold the centered items -->
     <div class="center-container">
-      <!-- The main text -->
-      <h1 class="main-text">Learning Game</h1>
-
-      <!-- The group wrapper for the two options -->
-      <div class="button-group">
-        <!-- The Math button linking directly to Math Playground -->
-        <a
-          href="https://www.mathplayground.com/grade_6_games.html"
-          class="game-btn math-btn"
-          >Learn 6th Grade Math</a
-        >
-
-        <!-- The English button linking directly to Wordle Unlimited -->
-        <a href="https://wordleunlimited.org/" class="game-btn english-btn"
-          >Play English Wordle</a
-        >
-      </div>
+        <!-- The main text updated to just "Learning" -->
+        <h1 class="main-text">Learning</h1>
+        
+        <!-- The group wrapper for the two options -->
+        <div class="button-group">
+            <!-- The Math button linking directly to Math Playground -->
+            <a href="https://www.mathplayground.com/grade_6_games.html" class="game-btn math-btn">Learn 6th Grade Math</a>
+            
+            <!-- The English button linking directly to Wordle Unlimited -->
+            <a href="https://wordleunlimited.org/" class="game-btn english-btn">Play English Wordle</a>
+        </div>
     </div>
-  </body>
+
+</body>
 </html>
